@@ -289,10 +289,12 @@ done
 # Steam Gaming Mode startup and suspend videos: Legix's, rendered in the
 # branding-assets stage (same choreography as the boot animation). Bazzite's
 # steam-tweaks copies these into each user's Steam overrides. Record the
-# originals' checksums so legix-steam-videos can replace copies users already
-# have, and nothing else.
-md5sum "$bz"/bazzite.webm "$bz"/bazzite-oled.webm "$bz"/bazzite-suspend.webm "$bz"/bazzite-suspend-oled.webm \
-  | cut -d' ' -f1 | sort -u > /usr/share/legix/bazzite-video-md5sums
+# originals' checksums, plus those of earlier Legix videos
+# (branding/superseded-video-md5sums), so legix-steam-videos can replace copies
+# users already have, and nothing else.
+{ md5sum "$bz"/bazzite.webm "$bz"/bazzite-oled.webm "$bz"/bazzite-suspend.webm "$bz"/bazzite-suspend-oled.webm | cut -d' ' -f1
+  grep -Eo '^[0-9a-f]{32}' /ctx/branding/superseded-video-md5sums; } \
+  | sort -u > /usr/share/legix/bazzite-video-md5sums
 test "$(wc -l < /usr/share/legix/bazzite-video-md5sums)" -ge 2
 install -m0644 /ctx/branding-video/legix.webm "$bz/bazzite.webm"
 install -m0644 /ctx/branding-video/legix.webm "$bz/bazzite-oled.webm"
@@ -328,6 +330,11 @@ rm -f /usr/share/homebrew.tar.zst /etc/profile.d/brew.sh /etc/profile.d/brew-bas
 # Flatpaks: trim Bazzite's preinstalls and install Zen, once per list version.
 chmod 0755 /usr/libexec/legix-flatpak-setup
 systemctl enable legix-flatpak-setup.service
+# GRUB: hidden after a successful boot, shown after a failed one. bootupd's
+# static grub.cfg ignores menu_auto_hide, so Legix adds a custom.cfg plus a
+# shutdown hook (see /usr/share/legix/grub-custom.cfg).
+chmod 0755 /usr/libexec/legix-grub-autohide
+systemctl enable legix-grub-autohide.service
 
 #### niri: Legix's default config (/etc/niri/config.kdl), generated from niri's
 # own default. Used only when the user has no ~/.config/niri/config.kdl.

@@ -13,7 +13,10 @@ import subprocess, sys
 from PIL import Image, ImageDraw, ImageFont
 
 FPS = 60
-BG = (11, 12, 14)
+# Pure black, like Bazzite's videos. Steam can't draw these with transparency
+# (VP8, no alpha) and puts black around them: the 450x450 suspend video sits
+# over a black screen, so any other colour shows up as a box.
+BG = (0, 0, 0)
 FIN, V, GEM_L, GEM_R = (184, 50, 31), (229, 67, 45), (255, 106, 61), (255, 154, 85)
 GLOW_L, GLOW_R, WORD = (255, 196, 154), (255, 224, 196), (236, 238, 241)
 PARTS = {  # 200x200-unit logo canvas

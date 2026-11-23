@@ -1,0 +1,13 @@
+[Unit]
+Description=Legix: hide the GRUB menu after a successful boot
+Documentation=https://github.com/shad0wcrawl3r/legix
+RequiresMountsFor=/boot
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/libexec/legix-grub-autohide start
+ExecStop=/usr/libexec/legix-grub-autohide stop
+
+[Install]
+WantedBy=multi-user.target

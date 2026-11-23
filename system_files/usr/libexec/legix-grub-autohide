@@ -1,0 +1,27 @@
+#!/bin/bash
+# Legix: hide the GRUB menu unless the previous boot failed (see
+# /usr/share/legix/grub-custom.cfg for the GRUB side).
+#   start: install the custom.cfg that reads and clears legix_menu_hide
+#   stop:  at a clean shutdown, set legix_menu_hide=1 if this boot was marked
+#          successful (boot_success=1)
+set -euo pipefail
+cfg=/boot/grub2/custom.cfg
+src=/usr/share/legix/grub-custom.cfg
+marker="Installed by legix-grub-autohide"
+[[ -d /boot/grub2 ]] || exit 0
+case "${1:-}" in
+  start)
+    if [[ -e "$cfg" ]] && ! grep -q "$marker" "$cfg"; then
+      echo "$cfg was not written by Legix; leaving it alone"
+      exit 0
+    fi
+    cmp -s "$src" "$cfg" || install -m0644 "$src" "$cfg"
+    ;;
+  stop)
+    grep -q "$marker" "$cfg" 2>/dev/null || exit 0
+    if grub2-editenv - list 2>/dev/null | grep -qx 'boot_success=1'; then
+      grub2-editenv - set legix_menu_hide=1 2>/dev/null
+    fi
+    ;;
+  *) echo "usage: $0 start|stop" >&2; exit 2 ;;
+esac
