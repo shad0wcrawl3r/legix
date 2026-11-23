@@ -1,23 +1,34 @@
 #!/bin/bash
-# Legix: swap Bazzite's Steam Gaming Mode startup/suspend videos for Legix's.
+# Legix: keep the user's Steam Gaming Mode startup/suspend videos on Legix's.
 # Bazzite's steam-tweaks copies /usr/share/ublue-os/bazzite/*.webm into the
 # user's Steam overrides only when a file is missing, so users who already have
-# Bazzite's copies keep them. Replace only files that are byte-identical to a
-# Bazzite original (checksums recorded at image build time); custom videos,
-# Animation Changer setups and the "no videos" choice are left alone.
+# a copy keep it. Replace only files we know came from an image: byte-identical
+# to a Bazzite original or an earlier Legix video (checksums shipped in the
+# image), or a copy this script installed before (checksums kept per user).
+# Custom videos, Animation Changer setups and the "no videos" choice are left
+# alone.
 set -euo pipefail
 dir="$HOME/.local/share/Steam/config/uioverrides/movies"
 sums=/usr/share/legix/bazzite-video-md5sums
+state="${XDG_STATE_HOME:-$HOME/.local/state}/legix/steam-video-md5sums"
 [[ -d "$dir" && -r "$sums" ]] || exit 0
 [[ -e "$dir/bazzite_novideo" || -f "$HOME/homebrew/plugins/SDH-AnimationChanger/main.py" ]] && exit 0
 startup=/usr/share/ublue-os/bazzite/bazzite.webm
 suspend=/usr/share/ublue-os/bazzite/bazzite-suspend.webm
+known() { grep -qx "$1" "$sums" || { [[ -r "$state" ]] && grep -qx "$1" "$state"; }; }
+mkdir -p "$(dirname "$state")"
 shopt -s nullglob
 for f in "$dir"/*.webm; do
   sum="$(md5sum < "$f" | cut -d' ' -f1)"
-  grep -qx "$sum" "$sums" || continue
   case "$(basename "$f")" in
-    *suspend*) install -m0644 "$suspend" "$f" ;;
-    *startup*) install -m0644 "$startup" "$f" ;;
+    *suspend*) src="$suspend" ;;
+    *startup*) src="$startup" ;;
+    *) continue ;;
   esac
+  cmp -s "$src" "$f" && continue
+  known "$sum" || continue
+  install -m0644 "$src" "$f"
 done
+# Remember what we ship now, so the next image's videos can replace it.
+{ [[ -r "$state" ]] && cat "$state"; md5sum < "$startup" | cut -d' ' -f1; md5sum < "$suspend" | cut -d' ' -f1; } \
+  | sort -u > "$state.new" && mv "$state.new" "$state"

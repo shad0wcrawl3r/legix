@@ -107,6 +107,9 @@ check "Flatpak trim + Zen setup enabled" \
 check "niri default config: Noctalia launcher on Mod+Space, Ptyxis terminal, valid" \
   "niri validate -c /etc/niri/config.kdl && grep -q 'Mod+Space .*panel-toggle\" \"launcher' /etc/niri/config.kdl && grep -q 'Mod+T .*ptyxis' /etc/niri/config.kdl && ! grep -q 'spawn-at-startup \"waybar\"' /etc/niri/config.kdl"
 
+check "GRUB menu auto-hide: custom.cfg is valid GRUB script, hook enabled" \
+  "grub2-script-check /usr/share/legix/grub-custom.cfg && grep -q 'Installed by legix-grub-autohide' /usr/share/legix/grub-custom.cfg && test -x /usr/libexec/legix-grub-autohide && bash -n /usr/libexec/legix-grub-autohide && test -L /etc/systemd/system/multi-user.target.wants/legix-grub-autohide.service"
+
 check "Bluetooth host privacy off (LE keyboards survive reboots)" \
   "grep -qx 'Privacy=off' /etc/bluetooth/main.conf && ! grep -q '^Privacy=device' /etc/bluetooth/main.conf"
 
@@ -125,8 +128,8 @@ check "image-info, fastfetch logo and welcome banner are Legix" \
   "jq -e '(.\"image-ref\" | endswith(\"ghcr.io/shad0wcrawl3r/legix\"))' /usr/share/ublue-os/image-info.json && grep -q '38;2;229;67;45' /usr/share/ublue-os/bazzite/fastfetch.jsonc && cmp -s /usr/share/ublue-os/bazzite/logo.svg /usr/share/icons/hicolor/scalable/apps/legix-logo.svg && grep -q '^# .*Legix' /usr/share/ublue-os/motd/template.md && grep -q '^Legix' /etc/system-release"
 check "image-info keeps Bazzite's image-name/vendor (Deck autologin and handheld setup match on 'deck')" \
   "jq -e '(.\"image-name\" | test(\"deck\")) and .\"image-vendor\" == \"ublue-os\"' /usr/share/ublue-os/image-info.json"
-check "Steam startup/suspend videos are Legix's, with the per-user swap for existing Bazzite copies" \
-  "for f in bazzite.webm bazzite-oled.webm bazzite-suspend.webm bazzite-suspend-oled.webm; do s=\$(md5sum < /usr/share/ublue-os/bazzite/\$f | cut -d' ' -f1); grep -qx \"\$s\" /usr/share/legix/bazzite-video-md5sums && exit 1; done; test \$(wc -l < /usr/share/legix/bazzite-video-md5sums) -ge 2 && test -x /usr/libexec/legix-steam-videos && bash -n /usr/libexec/legix-steam-videos && test -L /etc/systemd/user/default.target.wants/legix-steam-videos.service && grep -qx 'Name=Legix Updater' /usr/share/applications/io.github.rfrench3.bazzite-updater.desktop"
+check "Steam startup/suspend videos are Legix's, with the per-user swap for existing Bazzite and older Legix copies" \
+  "for f in bazzite.webm bazzite-oled.webm bazzite-suspend.webm bazzite-suspend-oled.webm; do s=\$(md5sum < /usr/share/ublue-os/bazzite/\$f | cut -d' ' -f1); grep -qx \"\$s\" /usr/share/legix/bazzite-video-md5sums && exit 1; done; test \$(wc -l < /usr/share/legix/bazzite-video-md5sums) -ge 2 && test -x /usr/libexec/legix-steam-videos && bash -n /usr/libexec/legix-steam-videos && grep -qx 697755798da9b57a19d55f5b264dcf47 /usr/share/legix/bazzite-video-md5sums && test -L /etc/systemd/user/default.target.wants/legix-steam-videos.service && grep -qx 'Name=Legix Updater' /usr/share/applications/io.github.rfrench3.bazzite-updater.desktop"
 check "no Bazzite name left in os-release display fields" \
   "! grep -E '^(NAME|PRETTY_NAME|BOOTLOADER_NAME|DEFAULT_HOSTNAME|LOGO)=' /usr/lib/os-release | grep -qi bazzite"
 check "pre-rename paths still work (away script link, seeder removes the old defaults file)" \
