@@ -9,16 +9,28 @@ RUN --mount=type=cache,dst=/var/cache/libdnf5 dnf5 -y install librsvg2-tools ffm
  && /render.sh /branding /out \
  && mkdir -p /out/videos && python3 -I /render-videos.py /branding/ChakraPetch-Bold.ttf /out/videos
 
+# Legix's own files as an RPM (packaging/legix.spec), so rpm owns them.
+FROM registry.fedoraproject.org/fedora:45 AS legix-rpm
+RUN --mount=type=cache,dst=/var/cache/libdnf5 dnf5 -y install rpm-build systemd-rpm-macros
+COPY packaging/legix.spec /src/legix.spec
+COPY system_files /src/system_files
+COPY branding/legix-mark.svg /src/legix-mark.svg
+COPY --from=branding-assets /out/plymouth /src/plymouth
+COPY --from=branding-assets /out/icons /src/icons
+RUN rpmbuild -bb /src/legix.spec \
+      --define "_sourcedir /src" --define "_topdir /rpmbuild" \
+      --define "legix_build_version $(date -u +%Y%m%d.%H%M)" \
+ && mkdir -p /out && cp /rpmbuild/RPMS/noarch/legix-*.rpm /out/
+
 # Allow build scripts to be referenced without being copied into the final image
 FROM scratch AS ctx
 COPY build_files /
-COPY system_files /system_files
+COPY --from=legix-rpm /out /legix-rpms
 # Public half of the image signing key, installed so devices can verify updates.
 COPY cosign.pub /cosign.pub
 # Patched Noctalia RPM (lock-screen on-screen keyboard), released by
 # shad0wcrawl3r/noctalia-osk and fetched by CI. Empty = Fedora's package.
 COPY noctalia-rpms /noctalia-rpms
-COPY --from=branding-assets /out/plymouth /plymouth
 COPY --from=branding-assets /out/icons /branding-png/icons
 COPY --from=branding-assets /out/videos /branding-video
 COPY branding /branding

@@ -34,6 +34,17 @@ Subjects are imperative, lowercase, no trailing period:
 `feat: add niri and noctalia shell`. Append `!` for changes that need users
 to act (e.g. `feat!: switch base to bazzite-deck-gnome`).
 
+## Where files go
+
+- **New Legix files** (scripts, units, configs, theme assets): put them under
+  `system_files/` and list them in `%files` of `packaging/legix.spec`.
+  The Containerfile's `legix-rpm` stage builds that spec into the `legix` RPM,
+  and rpmbuild fails on any file the spec doesn't list. Enable services in
+  the spec's preset files, not with `systemctl enable` in `build.sh`.
+- **Changes to other packages' files** (os-release, `platform.toml`, Bazzite's
+  logos and videos, `policy.json`) stay in `build_files/build.sh`. An RPM
+  can't own a file another package already owns.
+
 ## Patched Noctalia (lock-screen keyboard)
 
 **This is a hard requirement.** Don't remove the fetch step or the smoke test's lock-screen

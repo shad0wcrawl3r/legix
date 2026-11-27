@@ -27,6 +27,12 @@ check() {
   fi
 }
 
+echo "== Legix RPM"
+check "Legix's files are owned by the legix RPM and unmodified by build.sh" \
+  "rpm -q legix && rpm -V --nomtime legix && test \"\$(rpm -qf --qf '%{NAME}\n' /usr/lib/os-session-select /usr/libexec/legix-away /usr/libexec/legionforge-away /etc/pam.d/noctalia /usr/share/legix/grub-custom.cfg /usr/share/plymouth/themes/legix/gem.png /usr/share/icons/hicolor/256x256/apps/legix-logo.png /usr/lib/systemd/user/legix-steam-videos.service | sort -u)\" = legix"
+check "Legix services enabled through the RPM's presets" \
+  "test -L /etc/systemd/system/multi-user.target.wants/legix-flatpak-setup.service && test -L /etc/systemd/system/multi-user.target.wants/legix-grub-autohide.service && test -L /etc/systemd/user/default.target.wants/legix-desktop-session.service && test -L /etc/systemd/user/default.target.wants/legix-steam-videos.service"
+
 echo "== Packages and session wiring"
 check "packages installed (niri noctalia wtype xwayland-satellite portals)" \
   "rpm -q niri noctalia wtype xwayland-satellite xdg-desktop-portal-gnome xdg-desktop-portal-gtk"
