@@ -64,8 +64,8 @@ check "Bazzite Portal does not autostart for new users" \
 check "desk security: Noctalia lock with its on-screen keyboard; Gaming Mode in the power menu" \
   "test -x /usr/libexec/legix-away && bash -n /usr/libexec/legix-away && test ! -e /usr/lib/systemd/user/niri.service.wants/legix-away-on-resume.service && test ! -e /usr/lib/systemd/user/legix-away-on-resume.service && grep -qx 'lock_before_suspend = true' /usr/share/legix/noctalia/00-legix-defaults.toml && grep -qx 'keyboard = \"auto\"' /usr/share/legix/noctalia/00-legix-defaults.toml && grep -A3 '^\\[idle.behavior.lock\\]' /usr/share/legix/noctalia/00-legix-defaults.toml | grep -q 'enabled = true' && grep -q 'Gaming Mode (Steam PIN)' /usr/share/legix/noctalia/00-legix-defaults.toml"
 
-check "on-screen keyboard: plugin enabled and on the bar by default" \
-  "grep -q 'enabled = \\[ .omerfuyar/keyboard. \\]' /usr/share/legix/noctalia/00-legix-defaults.toml && grep -q 'omerfuyar/keyboard:widget' /usr/share/legix/noctalia/00-legix-defaults.toml && grep -qE '^ +.osk.,$' /usr/share/legix/noctalia/00-legix-defaults.toml"
+check "on-screen keyboard: plugin enabled, always-visible bar button calls its service" \
+  "f=/usr/share/legix/noctalia/00-legix-defaults.toml; grep -q 'enabled = \\[ .omerfuyar/keyboard. \\]' \$f && grep -qE '^ +.legix-osk.,$' \$f && grep -A1 '^\\[widget.legix-osk\\]' \$f | grep -qx 'type = \"custom_button\"' && grep -q 'left = \"exec noctalia msg plugin omerfuyar/keyboard:service all osk\"' \$f && noctalia config validate \$f 2>&1 | grep -q 'Config is valid' && ! noctalia config validate \$f 2>&1 | grep -q 'unknown setting'"
 
 check "Noctalia lock screen has the on-screen keyboard (lockscreen.keyboard setting)" \
   "printf '[lockscreen]\\nkeyboard = \"auto\"\\n' > /tmp/osk.toml && noctalia config validate /tmp/osk.toml 2>&1 | grep -q 'Config is valid' && ! noctalia config validate /tmp/osk.toml 2>&1 | grep -q 'unknown setting'"
