@@ -309,6 +309,16 @@ rm -f /usr/share/applications/discourse.desktop \
       /usr/share/applications/bbrew.desktop
 # yad stays (scripts use it); its icon browser just leaves the launcher.
 sed -i '/^\[Desktop Entry\]/a NoDisplay=true' /usr/share/applications/yad-icon-browser.desktop
+# OpenGamepadUI is Gaming Mode itself; opened from niri it would start a
+# second copy. Gaming Mode is in the power menu instead.
+sed -i '/^\[Desktop Entry\]/a NoDisplay=true' /usr/share/applications/opengamepadui.desktop
+grep -qx NoDisplay=true /usr/share/applications/opengamepadui.desktop
+# Cardwire blocks/switches GPUs on multi-GPU laptops; the Go has one GPU, and
+# its daemon (cardwired) would run all the time for nothing.
+remove_exactly cardwire cardwire-gui
+# VPN, wired (dock Ethernet) and static IP settings: GNOME Settings is gone and
+# Noctalia's network panel covers Wi-Fi only.
+dnf5 install -y nm-connection-editor
 # ujust recipes for removed apps (ujust imports every file, so empty, not delete).
 : > /usr/share/ublue-os/just/82-bazzite-waydroid.just
 : > /usr/share/ublue-os/just/88-bazzite-webapps.just
