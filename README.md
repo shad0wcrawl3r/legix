@@ -41,7 +41,7 @@ can't be unlocked at all. Fedora's noctalia doesn't have the feature yet (upstre
 | On-screen keyboard in the desktop | GNOME's | Noctalia [Keyboard](https://github.com/noctalia-dev/community-plugins) plugin, from the keyboard button on the bar |
 | Bazzite Portal at login | Opens | Doesn't open (it's still in the app launcher) |
 | GNOME desktop, extensions, GNOME Settings | Installed | Removed (about 200 MB) |
-| NVIDIA/Intel firmware, compilers, ROCm, all languages, Steam's offline bootstrap | Installed | Left out: Legix is tuned for the Legion Go (about 2 GB smaller). `ujust legix-extras` adds most back |
+| NVIDIA/Intel firmware, compilers, ROCm, all languages, Steam's offline bootstrap, CJK input methods (ibus), printing | Installed | Left out: Legix is tuned for the Legion Go (about 3 GB smaller). `ujust legix-extras` adds most back |
 
 You bring your own niri and Noctalia dotfiles. The image only sets a few Noctalia defaults:
 a full-width bar, icon-only widgets, the keyboard button, and the lock settings. Your own
@@ -137,7 +137,7 @@ shows its own image.
 |---|---|
 | `ujust away` | Go to Gaming Mode now |
 | `ujust lock` | Lock the desktop now |
-| `ujust legix-extras` | Add back what Legix leaves out: NVIDIA or Intel firmware, compilers, ROCm, all languages |
+| `ujust legix-extras` | Add back what Legix leaves out: NVIDIA or Intel firmware, compilers, ROCm, all languages, CJK input methods, printing |
 | `ujust restore-noctalia-setup` | Back up your Noctalia settings and run its setup wizard again |
 | `ujust niri-validate` | Check your niri config for errors |
 
