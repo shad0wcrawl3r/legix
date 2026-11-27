@@ -101,6 +101,11 @@ timeout = 300.0
 action = "lock_and_suspend"
 enabled = false
 
+# Noctalia's password prompt for admin actions (Disks, Firewall, Bazaar...).
+# niri has no other polkit agent since GNOME was removed.
+[shell]
+polkit_agent = true
+
 [[shell.session.actions]]
 action = "lock"
 shortcut = "1"

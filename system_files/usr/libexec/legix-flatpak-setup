@@ -1,10 +1,11 @@
 #!/bin/bash
 # Legix: trim the Flatpaks Bazzite preinstalls to what Legix ships, once per
 # list version. Removes apps Legix doesn't use and installs Zen (the default
-# browser). Re-runs only when LEGIX_FLATPAK_VERSION changes. If Flathub is
-# unreachable, it exits non-zero without stamping, so the next boot retries.
+# browser) and Heroic (Epic, GOG and Amazon games). Re-runs only when
+# LEGIX_FLATPAK_VERSION changes. If Flathub is unreachable, it exits non-zero
+# without stamping, so the next boot retries.
 set -uo pipefail
-LEGIX_FLATPAK_VERSION=1
+LEGIX_FLATPAK_VERSION=2
 stamp=/var/lib/legix/flatpak-setup-version
 [[ "$(cat "$stamp" 2>/dev/null)" == "$LEGIX_FLATPAK_VERSION" ]] && exit 0
 
@@ -16,7 +17,10 @@ REMOVE=(
   org.gnome.Characters org.gnome.Logs org.gnome.Firmware org.gnome.baobab
   io.github.flattool.Warehouse com.ranfdev.DistroShelf
 )
-INSTALL=(app.zen_browser.zen)
+INSTALL=(
+  app.zen_browser.zen
+  com.heroicgameslauncher.hgl   # Epic, GOG and Amazon games
+)
 
 installed="$(flatpak list --system --app --columns=application)"
 for app in "${REMOVE[@]}"; do

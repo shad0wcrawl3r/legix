@@ -39,6 +39,7 @@ can't be unlocked at all. Fedora's noctalia doesn't have the feature yet (upstre
 | Switch to Desktop | GNOME | niri with the Noctalia shell |
 | Desktop lock | GNOME's (needs a keyboard to unlock) | Noctalia's lock screen with an on-screen keyboard; locks after 5 minutes idle and before sleep |
 | On-screen keyboard in the desktop | GNOME's | Noctalia [Keyboard](https://github.com/noctalia-dev/community-plugins) plugin, from the keyboard button on the bar |
+| Heroic Games Launcher (Epic, GOG, Amazon) | Not installed | Installed from Flathub on first boot after switching (needs internet) |
 | Bazzite Portal at login | Opens | Doesn't open (it's still in the app launcher) |
 | GNOME desktop, extensions, GNOME Settings | Installed | Removed (about 200 MB) |
 | NVIDIA/Intel firmware, compilers, ROCm, all languages, Steam's offline bootstrap, CJK input methods (ibus), printing | Installed | Left out: Legix is tuned for the Legion Go (about 3 GB smaller). `ujust legix-extras` adds most back |
