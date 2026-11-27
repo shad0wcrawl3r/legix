@@ -6,14 +6,14 @@
 # Full-width bar, square ends.
 [bar.default]
 margin_ends = 0
-# Noctalia's default right-hand widgets, plus the on-screen keyboard ("osk")
-# for using the Go without a physical keyboard.
+# Noctalia's default right-hand widgets, plus an on-screen keyboard button
+# ("legix-osk") for using the Go without a physical keyboard.
 end = [
     "media",
     "tray",
     "notifications",
     "clipboard",
-    "osk",
+    "legix-osk",
     "network",
     "bluetooth",
     "volume",
@@ -36,14 +36,22 @@ hide_when_no_media = true
 
 # On-screen keyboard: the community "Keyboard" plugin (omerfuyar/keyboard).
 # Its OSK is a Noctalia layer that never takes focus and types into the
-# focused window with wtype (installed in the image). Tap the bar widget,
-# then "On-screen keyboard". Its layout list comes from Hyprland, so on niri
-# it only lists fcitx5 input methods (none installed); the OSK itself works.
+# focused window with wtype (installed in the image). The plugin's own bar
+# widget hides itself when it finds no keyboard layouts, and it reads them
+# from Hyprland, so on niri it never shows. Instead the bar gets a plain
+# button that calls the plugin's service: tap to show or hide the keyboard,
+# right-click (long-press) to move it.
 [plugins]
 enabled = [ "omerfuyar/keyboard" ]
 
-[widget.osk]
-type = "omerfuyar/keyboard:widget"
+[widget.legix-osk]
+type = "custom_button"
+glyph = "keyboard"
+tooltip = "On-screen keyboard"
+
+    [widget.legix-osk.actions]
+    left = "exec noctalia msg plugin omerfuyar/keyboard:service all osk"
+    right = "exec noctalia msg plugin omerfuyar/keyboard:service all osk-move"
 
 # Icons only, except the battery, which keeps its percentage.
 [widget.network]
