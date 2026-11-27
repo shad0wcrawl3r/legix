@@ -2,8 +2,11 @@
 
 set -ouex pipefail
 
-# Copy the contents of system_files/ of the git repo to /
-cp -avf "/ctx/system_files"/. /
+# Legix's own files (system_files/, boot theme, logo icons) come as the legix
+# RPM built in the Containerfile (packaging/legix.spec). It also enables the
+# Legix services through presets.
+dnf5 install -y /ctx/legix-rpms/legix-*.rpm
+rpm -q legix
 
 ### Install packages
 
@@ -31,8 +34,7 @@ dnf5 install -y \
     xdg-desktop-portal-gnome \
     xdg-desktop-portal-gtk
 
-# Make Steam's "Switch to Desktop" open niri (see /usr/lib/os-session-select).
-chmod 0755 /usr/lib/os-session-select
+# Steam's "Switch to Desktop" opens niri via /usr/lib/os-session-select (legix RPM).
 # steamos-manager's default desktop for direct steamosctl calls. Fail the
 # build if Bazzite changes this file, rather than silently keeping GNOME.
 sed -i 's/^desktop = "gnome.desktop"$/desktop = "niri.desktop"/' \
@@ -134,9 +136,8 @@ rmdir /usr/share/gnome-shell 2>/dev/null || true
 
 # Switch to Desktop from OpenGamepadUI/Steam goes straight to steamos-manager,
 # which uses the per-user desktop_session (it overrides platform.toml and may
-# still say gnome.desktop). Re-assert niri at every login.
-chmod 0755 /usr/libexec/legix-desktop-session
-systemctl --global enable legix-desktop-session.service
+# still say gnome.desktop). legix-desktop-session.service (legix RPM)
+# re-asserts niri at every login.
 
 # ujust: drop GNOME-only recipes. Every recipe file is a mandatory import, so
 # empty 90-bazzite-de.just (restore-gnome-de-settings, restore-gnome-folders)
@@ -177,15 +178,12 @@ mkdir -p /usr/lib/systemd/user/niri.service.wants
 ln -sf ../noctalia.service /usr/lib/systemd/user/niri.service.wants/noctalia.service
 # Seed Legix's Noctalia defaults (full-width bar, icon-only widgets)
 # into ~/.config/noctalia before Noctalia starts. See noctalia.service.d/.
-chmod 0755 /usr/libexec/legix-noctalia-defaults
 
 #### Desk security (LFORGE-15/18): Noctalia's lock screen, unlockable with
 # its on-screen keyboard (noctalia-osk build), locks on idle and before
 # suspend (Noctalia defaults above). legix-away ("Gaming Mode (Steam
 # PIN)" in the power menu, `ujust away`) leaves the desktop for Steam's PIN.
-chmod 0755 /usr/libexec/legix-away
-# Pre-rename name, in case a user's own Noctalia config still calls it.
-ln -sf legix-away /usr/libexec/legionforge-away
+# Both ship in the legix RPM, with the pre-rename legionforge-away link.
 # Noctalia's lock screen authenticates through this PAM service.
 test -e /etc/pam.d/noctalia
 
@@ -210,9 +208,8 @@ done
 
 #### Legix boot animation (Plymouth script theme)
 # Replaces Bazzite's default (bgrt: firmware logo + spinner). Theme files come
-# from system_files/; the PNG parts are rendered in the plymouth-assets stage.
-dnf5 install -y plymouth-plugin-script
-install -m0644 /ctx/plymouth/*.png /usr/share/plymouth/themes/legix/
+# The theme (and its plymouth-plugin-script dependency) comes with the legix
+# RPM; the PNG parts are rendered in the branding-assets stage.
 plymouth-set-default-theme legix
 grep -qx 'Theme=legix' /etc/plymouth/plymouthd.conf
 # Plymouth runs from the initramfs, so rebuild it with the theme inside. The
@@ -256,13 +253,7 @@ jq '."image-ref" = "ostree-image-signed:docker://ghcr.io/shad0wcrawl3r/legix"' \
    "$info" > "$info.new"
 mv "$info.new" "$info"
 jq -e '."image-name" | test("deck")' "$info"
-# Logo icon (os-release LOGO), in every size, rendered in the assets stage.
-install -Dm0644 /ctx/branding/legix-mark.svg /usr/share/icons/hicolor/scalable/apps/legix-logo.svg
-for png in /ctx/branding-png/icons/*.png; do
-  size="$(basename "$png" .png)"
-  install -Dm0644 "$png" "/usr/share/icons/hicolor/${size}x${size}/apps/legix-logo.png"
-done
-install -Dm0644 /ctx/branding-png/icons/256.png /usr/share/pixmaps/legix-logo.png
+# The logo icon (os-release LOGO), in every size, ships in the legix RPM.
 # Bazzite's own logo files, used by fastfetch and update notifications.
 bz=/usr/share/ublue-os/bazzite
 install -m0644 /ctx/branding/legix-mark.svg "$bz/logo.svg"
@@ -300,8 +291,7 @@ install -m0644 /ctx/branding-video/legix.webm "$bz/bazzite.webm"
 install -m0644 /ctx/branding-video/legix.webm "$bz/bazzite-oled.webm"
 install -m0644 /ctx/branding-video/legix-suspend.webm "$bz/bazzite-suspend.webm"
 install -m0644 /ctx/branding-video/legix-suspend.webm "$bz/bazzite-suspend-oled.webm"
-chmod 0755 /usr/libexec/legix-steam-videos
-systemctl --global enable legix-steam-videos.service
+# legix-steam-videos.service (legix RPM) does the per-user swap.
 # Launcher: Bazzite's updater updates Legix, so give it Legix's name.
 sed -i 's/^Name=Bazzite Updater$/Name=Legix Updater/' /usr/share/applications/io.github.rfrench3.bazzite-updater.desktop
 grep -qx 'Name=Legix Updater' /usr/share/applications/io.github.rfrench3.bazzite-updater.desktop
@@ -327,14 +317,11 @@ sed -i '/^\[Desktop Entry\]/a NoDisplay=true' /usr/share/applications/yad-icon-b
 systemctl disable brew-setup.service brew-update.timer brew-upgrade.timer
 systemctl mask brew-setup.service
 rm -f /usr/share/homebrew.tar.zst /etc/profile.d/brew.sh /etc/profile.d/brew-bash-completion.sh
-# Flatpaks: trim Bazzite's preinstalls and install Zen, once per list version.
-chmod 0755 /usr/libexec/legix-flatpak-setup
-systemctl enable legix-flatpak-setup.service
+# Flatpaks: legix-flatpak-setup.service (legix RPM) trims Bazzite's
+# preinstalls and installs Zen, once per list version.
 # GRUB: hidden after a successful boot, shown after a failed one. bootupd's
 # static grub.cfg ignores menu_auto_hide, so Legix adds a custom.cfg plus a
-# shutdown hook (see /usr/share/legix/grub-custom.cfg).
-chmod 0755 /usr/libexec/legix-grub-autohide
-systemctl enable legix-grub-autohide.service
+# shutdown hook (see /usr/share/legix/grub-custom.cfg), all in the legix RPM.
 
 #### niri: Legix's default config (/etc/niri/config.kdl), generated from niri's
 # own default. Used only when the user has no ~/.config/niri/config.kdl.
