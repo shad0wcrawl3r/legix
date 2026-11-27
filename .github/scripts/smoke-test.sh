@@ -70,6 +70,9 @@ check "on-screen keyboard: plugin enabled and on the bar by default" \
 check "Noctalia lock screen has the on-screen keyboard (lockscreen.keyboard setting)" \
   "printf '[lockscreen]\\nkeyboard = \"auto\"\\n' > /tmp/osk.toml && noctalia config validate /tmp/osk.toml 2>&1 | grep -q 'Config is valid' && ! noctalia config validate /tmp/osk.toml 2>&1 | grep -q 'unknown setting'"
 
+check "niri desktop gaps: polkit prompt on, network editor installed, no Cardwire, OpenGamepadUI hidden from the launcher" \
+  "grep -A1 '^\\[shell\\]' /usr/share/legix/noctalia/00-legix-defaults.toml | grep -qx 'polkit_agent = true' && rpm -q nm-connection-editor && ! rpm -q cardwire cardwire-gui | grep -qv 'is not installed' && grep -qx NoDisplay=true /usr/share/applications/opengamepadui.desktop"
+
 echo "== GNOME removed, niri essentials kept"
 check "GNOME desktop removed (gdm gnome-shell gnome-session gnome-control-center)" \
   "! rpm -q gdm gnome-shell gnome-session gnome-control-center | grep -qv 'is not installed' && test ! -e /usr/share/wayland-sessions/gnome.desktop"
