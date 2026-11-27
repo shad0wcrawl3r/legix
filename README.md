@@ -129,7 +129,8 @@ shows its own image.
     and before sleep.
   - **Gaming Mode (Steam PIN)** leaves the desktop for Gaming Mode, closing its apps.
   - **Lock and suspend** locks, then sleeps.
-- **On-screen keyboard:** tap the keyboard button on the bar, then **On-screen keyboard**.
+- **On-screen keyboard:** tap the keyboard button on the bar to show or hide it. Long-press (or
+  right-click) the button to move the keyboard to another spot on the screen.
 
 ### Commands
 
