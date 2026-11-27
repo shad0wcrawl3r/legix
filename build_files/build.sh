@@ -328,7 +328,7 @@ systemctl disable brew-setup.service brew-update.timer brew-upgrade.timer
 systemctl mask brew-setup.service
 rm -f /usr/share/homebrew.tar.zst /etc/profile.d/brew.sh /etc/profile.d/brew-bash-completion.sh
 # Flatpaks: legix-flatpak-setup.service (legix RPM) trims Bazzite's
-# preinstalls and installs Zen, once per list version.
+# preinstalls and installs Zen and Heroic, once per list version.
 # GRUB: hidden after a successful boot, shown after a failed one. bootupd's
 # static grub.cfg ignores menu_auto_hide, so Legix adds a custom.cfg plus a
 # shutdown hook (see /usr/share/legix/grub-custom.cfg), all in the legix RPM.

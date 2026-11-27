@@ -1,5 +1,5 @@
 [Unit]
-Description=Legix: trim preinstalled Flatpaks and install Zen (once per list version)
+Description=Legix: trim preinstalled Flatpaks and install Zen and Heroic (once per list version)
 Documentation=https://github.com/shad0wcrawl3r/legix
 Wants=network-online.target
 After=network-online.target bazzite-flatpak-manager.service
