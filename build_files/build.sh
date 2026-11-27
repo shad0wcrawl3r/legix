@@ -366,6 +366,39 @@ remove_exactly \
     kernel-devel-matched perl perl-CPAN perl-ExtUtils-CBuilder
 # ROCm compute (Steam, Proton and Mesa don't use it).
 remove_exactly rocm-clinfo rocm-comgr rocm-filesystem rocm-opencl rocm-runtime rocm-smi
+
+#### Second trim (client, 2026-11-27, LFORGE-32): ~850 MB less on disk.
+# Each set was dry-run with `dnf5 remove --assumeno` on the device first.
+# Input methods (ibus and its Chinese/Japanese/Korean/Vietnamese engines and
+# data, emoji typing): ~460 MB. Gaming Mode only starts ibus-daemon when it is
+# installed; Steam's and Noctalia's on-screen keyboards don't use it. The CJK
+# fonts stay, so CJK text still displays.
+mapfile -t IBUS_PKGS < <(rpm -qa 'ibus*' --qf '%{NAME}\n' | sort -u)
+test "${#IBUS_PKGS[@]}" -ge 10
+remove_exactly "${IBUS_PKGS[@]}" python3-ibus \
+    anthy-unicode cldr-emoji-annotation cldr-emoji-annotation-dtd kasumi-unicode \
+    libchewing libhangul libpinyin libpinyin-data m17n-db m17n-lib mozc \
+    python3-rapidfuzz pyzy unicode-ucd
+# Printing: CUPS and its drivers (~95 MB). cups-libs stays (GTK and Qt link
+# it), as do ghostscript and scanning (SANE), except HP's scanner backend,
+# which needs hplip.
+remove_exactly \
+    cups cups-browsed cups-filters cups-filters-driverless cups-ipptool \
+    cups-pk-helper hplip hplip-common hplip-libs libsane-hpaio \
+    gutenprint gutenprint-cups gutenprint-libs dymo-cups-drivers splix \
+    ptouch-driver printer-driver-brlaser c2esp braille-printer-app \
+    terra-bluez-cups system-config-printer-libs system-config-printer-udev \
+    python3-cups ipp-usb libppd libcupsfilters
+# Unused on the Go (~290 MB): VM firmware (no QEMU/libvirt here), Intel's
+# video decode driver, C preprocessor and C++ headers left from the
+# toolchain, buildah (podman builds without it), and Wi-Fi/Bluetooth/NPU/audio
+# firmware for chips the Go doesn't have. Kept: realtek-firmware (dock
+# Ethernet, r8152), mt7xxx (the Go's Wi-Fi/Bluetooth), SOF and Cirrus audio.
+remove_exactly \
+    edk2-ovmf libva-intel-media-driver cpp libstdc++-devel buildah \
+    atheros-firmware brcmfmac-firmware iwlbluetooth-firmware iwlegacy-firmware \
+    tiwilink-firmware libertas-firmware nxpwireless-firmware qcom-wwan-firmware \
+    intel-npu-firmware intel-audio-firmware
 # English only, instead of every glibc locale.
 dnf5 swap -y glibc-all-langpacks glibc-langpack-en
 rpm -q glibc-langpack-en

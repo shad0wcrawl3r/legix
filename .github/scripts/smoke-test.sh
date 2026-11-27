@@ -122,6 +122,8 @@ check "Bluetooth host privacy off (LE keyboards survive reboots)" \
 echo "== Trimmed for the Legion Go"
 check "trimmed: no cosign/AWS SDK, NVIDIA/Intel firmware, toolchain, ROCm, extra locales, Steam bootstrap, docs" \
   "! rpm -q cosign python3-botocore nvidia-gpu-firmware intel-gpu-firmware iwlwifi-mvm-firmware intel-opencl llvm22-libs gcc kernel-devel rocm-runtime glibc-all-langpacks | grep -qv 'is not installed' && rpm -q glibc-langpack-en && test ! -e /usr/share/gamescope-session-plus/bootstrap_steam.tar.zst && test -z \"\$(ls -A /usr/share/doc)\""
+check "second trim: no input methods, printing, OVMF, Intel VA driver, buildah, other Wi-Fi firmware; cups-libs, ghostscript, CJK fonts kept" \
+  "! rpm -qa 'ibus*' | grep -q . && ! rpm -q python3-ibus mozc libpinyin-data cldr-emoji-annotation unicode-ucd cups hplip gutenprint edk2-ovmf libva-intel-media-driver cpp buildah atheros-firmware brcmfmac-firmware | grep -qv 'is not installed' && rpm -q cups-libs ghostscript google-noto-sans-cjk-fonts realtek-firmware mt7xxx-firmware && test ! -e /etc/xdg/autostart/ibus-mozc-launch-xwayland.desktop"
 check "Gaming Mode stack still intact after the trim (OpenGamepadUI, Steam, 32-bit Mesa, AMD/MediaTek firmware)" \
   "rpm -q opengamepadui gamescope-session-ogui-steam steam mesa-vulkan-drivers.i686 mesa-vulkan-drivers.x86_64 amd-gpu-firmware perl-interpreter embree godot-runner && ls /usr/lib/firmware/mediatek | grep -q ."
 check "ujust legix-extras exists and only offers installable groups" \

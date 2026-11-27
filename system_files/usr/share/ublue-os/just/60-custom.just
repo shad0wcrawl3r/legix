@@ -49,6 +49,10 @@ legix-extras:
       ["Compiler toolchain (gcc, g++, perl)"]="gcc gcc-c++ perl"
       ["ROCm compute (AMD OpenCL)"]="rocm-opencl rocm-smi rocm-clinfo"
       ["All languages (every glibc locale)"]="glibc-all-langpacks"
+      ["Input methods: Chinese, Japanese, Korean typing (ibus)"]="ibus ibus-gtk3 ibus-gtk4 ibus-libpinyin ibus-mozc ibus-anthy ibus-hangul ibus-chewing ibus-m17n ibus-typing-booster"
+      ["Printing (CUPS and printer drivers)"]="cups cups-filters cups-browsed hplip gutenprint-cups system-config-printer-udev ipp-usb"
+      ["Other Wi-Fi and Bluetooth firmware (Atheros, Broadcom, Intel Bluetooth, TI, NXP)"]="atheros-firmware brcmfmac-firmware iwlbluetooth-firmware tiwilink-firmware nxpwireless-firmware libertas-firmware"
+      ["Container image builder (buildah) and VM firmware (OVMF)"]="buildah edk2-ovmf"
     )
     echo "Legix leaves these out to stay small. Pick any to download and add (space selects, enter confirms)."
     echo "Not available here: kernel headers for this kernel, ScopeBuddy, and Steam's offline bootstrap (Steam downloads itself)."
